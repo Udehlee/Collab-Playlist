@@ -8,22 +8,21 @@ import (
 	"github.com/Udehlee/Collab-playlist/models"
 )
 
-func GetUserProfile(client *http.Client) (string, error) {
+func GetUserProfile(client *http.Client) (models.User, error) {
 	resp, err := client.Get("https://api.spotify.com/v1/me")
 	if err != nil {
-		return "", fmt.Errorf("failed to get user info: %w", err)
+		return models.User{}, fmt.Errorf("failed to get user info: %w", err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return "", fmt.Errorf("error response from Spotify: %s", resp.Status)
+		return models.User{}, fmt.Errorf("error response from Spotify: %s", resp.Status)
 	}
 
-	var User models.User
-
-	if err := json.NewDecoder(resp.Body).Decode(&User); err != nil {
-		return "", fmt.Errorf("failed to decode user info: %w", err)
+	var user models.User
+	if err := json.NewDecoder(resp.Body).Decode(&user); err != nil {
+		return models.User{}, fmt.Errorf("failed to decode user info: %w", err)
 	}
 
-	return User.Name, nil
+	return user, nil
 }
